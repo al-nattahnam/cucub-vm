@@ -16,9 +16,8 @@ module Cucub
       $stdout.puts Cucub::ObjectsHub.instance.objects.inspect
       self.init_objects(vm_opts[:initializer]) # this will go inside worker instance
       $stdout.puts Cucub::ObjectsHub.instance.objects.inspect
-      EM.run do
-        $stdout.puts "inside reactor"
-      end
+
+      self.init_reactor
     end
 
     def init_classes
@@ -37,9 +36,13 @@ module Cucub
       require boot_file
     end
 
+    def init_reactor
+      Cucub::Reactor.instance.run
+    end
+
     def shutdown!
-      EM.stop
-      #@dispatcher.stop
+      Cucub::Channel.shutdown!
+      Cucub::Reactor.instance.stop
     end
 
     def config_filepath
