@@ -3,8 +3,13 @@ source "http://rubygems.org"
 # Example:
 #   gem "activesupport", ">= 2.3.5"
 
+group :cli do
+  gem "thor"
+  gem "servolux"
+end
+
 gem "ma-zmq", :path => "/home/krakatoa/workspace/al-nattahnam/ma-zmq"
-gem "cucub-protocol", :path => "/home/krakatoa/workspace/al-nattahnam/cucub/protocol", :require => 'cucub-protocol'
+gem "cucub-protocol", '0.0.1', :path => "/home/krakatoa/workspace/al-nattahnam/cucub/protocol", :require => 'cucub-protocol'
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
