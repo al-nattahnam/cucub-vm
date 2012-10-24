@@ -1,8 +1,10 @@
-# Run it on root with this command: ruby bin/cucub-vm start examples/boot.rb
+# Run it on root dir with this command:
+# ruby bin/cucub-vm.rb start examples/boot.rb -c examples/protocol.ini -i examples/initializer.rb
 
-require './examples/reply_channel_test'
-
-core = Core.new
-#core.oid = 1
-
-#Cucub.start!('10.0.0.5', Proc.new {})
+class Core
+  def state(i)
+    puts "--ack--"
+    sleep(i)
+    puts "Hola! #{i}"
+  end
+end

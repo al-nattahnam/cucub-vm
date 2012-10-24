@@ -17,18 +17,14 @@ module Cucub
 
       def reload
         @specification_set = @loader.parse
-        $stdout.puts self.classes.inspect
-        @uses = nil
+        @classes = nil
       end
 
       def classes
         # lazy load array of classes
         return @classes if @classes
-        #uses = []
-        #uses << "box" if @specification_set.uses_box
-        #uses << "mailbox" if @specification_set.uses_mailbox
-        #uses << "board" if @specification_set.uses_board
-        @uses = @specification_set.classes
+        classes = @specification_set.classes
+        @classes = classes
       end
     end
   end
