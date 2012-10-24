@@ -1,0 +1,2 @@
+Given I want to make an object Cucub-aware and set it as a worker object,
+All I need to do is set it as a class in the Cucub protocol configuration (ini)file.
