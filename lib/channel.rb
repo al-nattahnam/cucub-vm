@@ -51,6 +51,18 @@ module Cucub
       @socket.connect :ipc, "/tmp/cucub-inner-outbound.sock"
     end
 
+    def recv_string
+      @socket.recv_string(ZMQ::NOBLOCK)
+    end
+
+    def send_string(msg)
+      @socket.send_string(msg)
+    end
+
+    def socket
+      @socket
+    end
+
     def close
       $stdout.puts "Closing #{@kind} socket."
       @socket.close
