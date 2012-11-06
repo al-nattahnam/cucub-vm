@@ -36,8 +36,10 @@ module Cucub
       #   enable tcp communication, so workers can be outside the local server.
 
       $stdout.puts "Connecting to the Inner Inbound (PULL) socket"
-      @socket = MaZMQ::Pull.new
-      @socket.connect :ipc, "/tmp/cucub-inner-inbound.sock"
+      #@socket = MaZMQ::Pull.new
+      #@socket.connect :ipc, "/tmp/cucub-inner-inbound.sock"
+      @socket = PanZMQ::Pull.new
+      @socket.connect "ipc:///tmp/cucub-inner-inbound.sock"
     end
 
     def vm_inner_outbound_start
@@ -47,12 +49,20 @@ module Cucub
       #   enable tcp communication, so workers can be outside the local server.
 
       $stdout.puts "Connecting to the Inner Inbound (PUSH) socket"
-      @socket = MaZMQ::Push.new
-      @socket.connect :ipc, "/tmp/cucub-inner-outbound.sock"
+      #@socket = MaZMQ::Push.new
+      #@socket.connect :ipc, "/tmp/cucub-inner-outbound.sock"
+      @socket = PanZMQ::Push.new
+      @socket.connect "ipc:///tmp/cucub-inner-outbound.sock"
     end
 
-    def recv_string
-      @socket.recv_string(ZMQ::NOBLOCK)
+    #def recv_string
+    #  @socket.recv_string(ZMQ::NOBLOCK)
+    #end
+
+    def receive(&block)
+      @socket.receive { |msg|
+        block.call(msg)
+      }
     end
 
     def send_string(msg)
@@ -72,7 +82,8 @@ module Cucub
       @@vm_inner_inbound.close if defined?(@@vm_inner_inbound)
       @@vm_inner_outbound.close if defined?(@@vm_inner_outbound)
 
-      MaZMQ.terminate
+      #MaZMQ.terminate
+      PanZMQ.terminate
     end
 
   end

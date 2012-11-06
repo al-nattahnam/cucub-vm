@@ -1,6 +1,5 @@
 require 'singleton'
 
-require 'ffi-rzmq'
 require 'fiber'
 
 module Cucub
@@ -8,7 +7,7 @@ module Cucub
     include Singleton
 
     def initialize
-      @workers = []
+      @actors = []
     end
 
     def run
@@ -25,16 +24,15 @@ module Cucub
 
     def container
       @reactor_fiber = Fiber.new {
-        @vm_inbound = PanZMQ::Pull.new
-        @vm_inbound.connect "ipc:///tmp/cucub-inner-inbound.sock"
+        init_channels
         $stdout.puts "prepared to receive."
 
         # worker is going to be a Class, fibered-aware, which can receive messages
         # relay(@worker)
 
-        @vm_inbound.receive { |msg|
+        @inbound.receive { |msg|
           $stdout.puts "received: #{msg.inspect}"
-          @workers.first.wire(msg)
+          @actors.first.wire(msg)
           $stdout.puts "\n"
         }
       }
@@ -54,10 +52,9 @@ module Cucub
       $stdout.puts "Stopping gracefully the reactor."
       @running = false
       @actors.each { |actor| actor.kill }
-      @vm_inbound.close
-      PanZMQ.terminate
-      EM.stop
-      #exit
+      #PanZMQ.terminate
+      #EM.stop
+      exit
     end
   end
 end

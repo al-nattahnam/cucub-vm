@@ -1,3 +1,5 @@
+require 'ffi-rzmq'
+
 module PanZMQ
   @@context = nil
   def self.context
@@ -13,6 +15,7 @@ module PanZMQ
   class Pull
     def initialize
       @socket = PanZMQ.context.socket ZMQ::PULL
+      #@socket.setsockopt(ZMQ::LINGER, 0)
       @messages = []
       @alive = true
     end
@@ -36,6 +39,7 @@ module PanZMQ
     end
 
     def close
+      kill
       @socket.close
     end
   end
@@ -43,10 +47,15 @@ module PanZMQ
   class Push
     def initialize
       @socket = PanZMQ.context.socket ZMQ::PUSH
+      #@socket.setsockopt(ZMQ::LINGER, 0)
     end
 
     def connect(params)
       @socket.connect params
+    end
+
+    def send_string(message)
+      @socket.send_string(message)
     end
 
     def bind(params)
