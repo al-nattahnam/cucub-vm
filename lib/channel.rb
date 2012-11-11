@@ -40,6 +40,7 @@ module Cucub
       #@socket.connect :ipc, "/tmp/cucub-inner-inbound.sock"
       @socket = PanZMQ::Pull.new
       @socket.connect "ipc:///tmp/cucub-inner-inbound.sock"
+      @socket
     end
 
     def vm_inner_outbound_start
@@ -53,6 +54,7 @@ module Cucub
       #@socket.connect :ipc, "/tmp/cucub-inner-outbound.sock"
       @socket = PanZMQ::Push.new
       @socket.connect "ipc:///tmp/cucub-inner-outbound.sock"
+      @socket
     end
 
     #def recv_string
@@ -79,10 +81,12 @@ module Cucub
     end
 
     def self.shutdown!
+      $stdout.puts "1. Shutting down Inbound Socket"
       @@vm_inner_inbound.close if defined?(@@vm_inner_inbound)
+      $stdout.puts "2. Shutting down Outbound Socket"
       @@vm_inner_outbound.close if defined?(@@vm_inner_outbound)
 
-      #MaZMQ.terminate
+      $stdout.puts "3. Terminate PanZMQ"
       PanZMQ.terminate
     end
 

@@ -15,7 +15,7 @@ module PanZMQ
   class Pull
     def initialize
       @socket = PanZMQ.context.socket ZMQ::PULL
-      #@socket.setsockopt(ZMQ::LINGER, 0)
+      @socket.setsockopt(ZMQ::LINGER, 0)
       @messages = []
       @alive = true
     end
@@ -47,7 +47,7 @@ module PanZMQ
   class Push
     def initialize
       @socket = PanZMQ.context.socket ZMQ::PUSH
-      #@socket.setsockopt(ZMQ::LINGER, 0)
+      @socket.setsockopt(ZMQ::LINGER, 0)
     end
 
     def connect(params)

@@ -7,17 +7,20 @@ module Cucub
 
     def initialize
       #@dispatcher = Cucub::Dispatcher.instance
+      @running = true
     end
 
     def start!(vm_opts={})
-      @config_filepath = vm_opts[:config]
-      self.init_classes
-      
-      $stdout.puts Cucub::ObjectsHub.instance.objects.inspect
-      self.init_objects(vm_opts[:initializer]) # this will go inside worker instance
-      $stdout.puts Cucub::ObjectsHub.instance.objects.inspect
+      if @running 
+        @config_filepath = vm_opts[:config]
+        self.init_classes
+        
+        $stdout.puts Cucub::ObjectsHub.instance.objects.inspect
+        self.init_objects(vm_opts[:initializer]) # this will go inside worker instance
+        $stdout.puts Cucub::ObjectsHub.instance.objects.inspect
 
-      self.init_reactor
+        self.init_reactor
+      end
     end
 
     def init_classes
@@ -41,7 +44,7 @@ module Cucub
     end
 
     def shutdown!
-      Cucub::Channel.shutdown!
+      @running = false
       Cucub::Reactor.instance.stop
     end
 

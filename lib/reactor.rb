@@ -43,17 +43,20 @@ module Cucub
       # maybe send plugged event ?
     end
 
+    def kill_actors
+      $stdout.puts "4. Kill Actors"
+      @actors.each { |actor| actor.kill }
+      $stdout.puts "5. Killed"
+    end
+
     def init_channels
       @inbound = Cucub::Channel.vm_inner_inbound
-      @outbound = Cucub::Channel.vm_inner_outbound
+      #@outbound = Cucub::Channel.vm_inner_outbound
     end
 
     def stop
-      $stdout.puts "Stopping gracefully the reactor."
-      @running = false
-      @actors.each { |actor| actor.kill }
-      #PanZMQ.terminate
-      #EM.stop
+      Cucub::Channel.shutdown!
+      kill_actors
       exit
     end
   end
