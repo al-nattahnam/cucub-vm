@@ -17,9 +17,13 @@ module Cucub
     end
 
     def plug_actors
-      @actor = Cucub::Actor.new
+      #@actor = Cucub::Actor.new
+      #plug_actor(@actor)
 
-      plug_actor(@actor)
+      Cucub::ObjectsHub.instance.objects.each do |object|
+        actor = Cucub::Actor.new(object)
+        plug_actor(actor)
+      end
     end
 
     def container
@@ -32,10 +36,27 @@ module Cucub
 
         @inbound.receive { |msg|
           $stdout.puts "received: #{msg.inspect}"
+          wrap, wire_message = unwrap_message(msg.last)
+          $stdout.puts "Wrap: #{wrap.inspect}"
+          $stdout.puts "Wire: #{wire_message.inspect}"
+          msg[msg.size - 1] = [wrap, wire_message]
+
           @actors.first.wire(msg)
+
           $stdout.puts "\n"
         }
       }
+    end
+
+    def unwrap_message(message)
+      #unserialized, serialized = message.split("\n")
+      
+      # encrypted;oid | action;param1,param2
+      wrap, wire_message_txt = message.split("|")
+
+      # unencrypt, deserialize wire_message_txt
+
+      [wrap, wire_message_txt]
     end
 
     def plug_actor(actor)
