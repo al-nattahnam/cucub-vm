@@ -18,7 +18,7 @@ module Cucub
           msg = args.shift
           $stdout.puts msg.inspect
 
-          message = read_message(msg[1])
+          message = read_message(msg)
           play message
 
           #if msg == "exit"
@@ -26,25 +26,24 @@ module Cucub
           #  origin.yield
           #end
 
-          # play
-
           origin.transfer
         end
       }
     end
 
-    def read_message(message_txt)
-      message = {}
-      message[:action] = message_txt.split(";")[0]
-      message[:params] = message_txt.split(";")[1].split(",") if message_txt.split(";")[1]
+    def read_message(message)
+      $stdout.puts "Incoming message: #{message.inspect}"
+      message.unlock(:msgpack)
+      $stdout.puts "Incoming message, unlocked: #{message.inspect}"
+
       message
     end
 
-    def play(message) #(method_name, *args)
-      if message.has_key?(:params) #args
-        @cucub_object.send(message[:action], *message[:params])
+    def play(message)
+      if message.additionals
+        @cucub_object.send(message.action.to_sym, *message.additionals)
       else
-        @cucub_object.send(message[:action])
+        @cucub_object.send(message.action.to_sym)
       end
     end
 
@@ -55,7 +54,6 @@ module Cucub
     def kill
       $stdout.puts "Suiciding me."
       @state = :dead
-      #@fiber.resume
     end
 
     def fiber_state
