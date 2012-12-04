@@ -1,5 +1,6 @@
 require 'singleton'
 require './lib/vm/configuration'
+require 'pan-zmq'
 
 module Cucub
   class VM

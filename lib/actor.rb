@@ -31,6 +31,11 @@ module Cucub
       }
     end
 
+    def process(msg)
+      message = read_message(msg)
+      play message
+    end
+
     def read_message(message)
       $stdout.puts "Incoming message: #{message.inspect}"
       message.unlock(:msgpack)

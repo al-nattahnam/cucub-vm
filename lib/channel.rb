@@ -40,6 +40,7 @@ module Cucub
       #@socket.connect :ipc, "/tmp/cucub-inner-inbound.sock"
       @socket = PanZMQ::Pull.new
       @socket.connect "ipc:///tmp/cucub-inner-inbound.sock"
+      @socket.register
       @socket
     end
 
@@ -61,8 +62,8 @@ module Cucub
     #  @socket.recv_string(ZMQ::NOBLOCK)
     #end
 
-    def receive(&block)
-      @socket.receive { |msg|
+    def on_receive(&block)
+      @socket.on_receive { |msg|
         block.call(msg)
       }
     end

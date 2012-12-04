@@ -31,14 +31,17 @@ module Cucub
         # worker is going to be a Class, fibered-aware, which can receive messages
         # relay(@worker)
 
-        @inbound.receive { |msg|
+        @inbound.on_receive { |msg|
           $stdout.puts "received: #{msg.inspect}"
-          msg[msg.size - 1] = unwrap_message(msg.last)
+          #msg[msg.size - 1] = unwrap_message(msg) #.last)
           
-          @actors.first.wire(msg)
+          msg = unwrap_message(msg)
+          #@actors.first.wire(msg)
 
+          @actors.first.process(msg)
           $stdout.puts "\n"
         }
+        PanZMQ::Poller.instance.poll
       }
     end
 
