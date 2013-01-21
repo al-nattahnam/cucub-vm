@@ -1,10 +1,12 @@
 require 'singleton'
-require './lib/vm/configuration'
+require_relative './vm/configuration'
 require 'pan-zmq'
 
 module Cucub
   class VM
     include Singleton
+
+    attr_reader :threaded
 
     def initialize
       #@dispatcher = Cucub::Dispatcher.instance
@@ -12,6 +14,9 @@ module Cucub
     end
 
     def start!(vm_opts={})
+      vm_opts[:threaded] = true if vm_opts[:threaded].nil?
+      @threaded = vm_opts[:threaded]
+      
       if @running 
         @config_filepath = vm_opts[:config]
         self.init_classes

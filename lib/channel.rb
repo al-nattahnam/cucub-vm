@@ -59,7 +59,7 @@ module Cucub
     end
 
     #def recv_string
-    #  @socket.recv_string(ZMQ::NOBLOCK)
+    #  @socket.recv_string#(ZMQ::NOBLOCK)
     #end
 
     def on_receive(&block)

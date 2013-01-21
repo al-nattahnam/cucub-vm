@@ -2,18 +2,75 @@ require 'singleton'
 
 require 'fiber'
 
+require "logger"
+
 module Cucub
   class Reactor
     include Singleton
 
+    attr_accessor :logger
+
     def initialize
+      if not Cucub::VM.instance.threaded
+        self.logger = Logger.new($stderr)
+        self.logger.level = Logger::DEBUG
+        
+        self.class.send(:include, ::Servolux::Threaded)
+      end
+      
       @actors = []
+
+      @reactor_thread = nil
+
+      @state = :idle
+
+      trap("INT") { self.stop }
+
+      if not Cucub::VM.instance.threaded
+      start
+      join
+      end
+      self
     end
 
     def run
-      plug_actors
+      if @state == :idle
 
-      container.resume
+        $stdout.puts "idle"
+      
+        plug_actors
+        init_channels
+
+        $stdout.puts "receiving"
+        # This should be on inbound creation method
+        @inbound.on_receive { |msg|
+          $stdout.puts "received: #{msg.inspect}"
+          #msg[msg.size - 1] = unwrap_message(msg) #.last)
+         
+          msg = unwrap_message(msg)
+          #@actors.first.wire(msg)
+
+          @actors.first.process(msg)
+          $stdout.puts "\n"
+        }
+
+        @state = :preparing_container
+      end
+      if @state == :preparing_container
+        $stdout.puts "preparing container"
+        container_prepare
+      end
+
+      # container.resume
+
+        begin
+          $stdout.puts "running container"
+          container_run
+          # @reactor_thread.join
+        rescue Exception => e
+          puts "handled exception"
+        end
+
     end
 
     def plug_actors
@@ -23,26 +80,41 @@ module Cucub
       end
     end
 
-    def container
-      @reactor_fiber = Fiber.new {
-        init_channels
-        $stdout.puts "prepared to receive."
+    def container_prepare
+      #@reactor_fiber = Fiber.new {
+      @reactor_thread ||= Thread.new {
 
-        # worker is going to be a Class, fibered-aware, which can receive messages
-        # relay(@worker)
+        begin
 
-        @inbound.on_receive { |msg|
-          $stdout.puts "received: #{msg.inspect}"
-          #msg[msg.size - 1] = unwrap_message(msg) #.last)
-          
-          msg = unwrap_message(msg)
-          #@actors.first.wire(msg)
+          # worker is going to be a Class, fibered-aware, which can receive messages
+          # relay(@worker)
 
-          @actors.first.process(msg)
-          $stdout.puts "\n"
-        }
-        PanZMQ::Poller.instance.poll
+          $stdout.puts "prepared to receive."
+
+          while @state != :stopped
+            case @state
+              when :preparing_container
+                Thread.stop
+              when :running
+                PanZMQ::Poller.instance.poll
+            end
+          end
+
+        rescue Exception => e
+          puts "exception: #{e.exception}"
+        end
       }
+    end
+
+    def container_run
+      @state = :running
+      @reactor_thread.run
+      # @reactor_thread.join
+    end
+
+    def container_stop
+      @state = :stopped
+      # @reactor_thread.raise "terminated!"
     end
 
     def unwrap_message(message)
@@ -67,6 +139,7 @@ module Cucub
     end
 
     def stop
+      @state = :stopped
       Cucub::Channel.shutdown!
       kill_actors
       exit

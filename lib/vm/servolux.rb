@@ -7,6 +7,7 @@ module Cucub
       attr_accessor :vm_opts
       
       def run
+        @vm_opts[:threaded] = false
         Cucub::VM.instance.start!(@vm_opts)
         Process.waitall
       end
