@@ -9,3 +9,7 @@ class Core
     puts "Hola! #{i}"
   end
 end
+
+# TODO try to supress this requirement
+class Engine
+end

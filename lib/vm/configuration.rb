@@ -20,6 +20,11 @@ module Cucub
         @classes = nil
       end
 
+      def actions_for_class(class_name)
+        obj_spec = @specification_set[class_name]
+        obj_spec.action_specifications.collect(&:action_name)
+      end
+
       def classes
         # lazy load array of classes
         return @classes if @classes

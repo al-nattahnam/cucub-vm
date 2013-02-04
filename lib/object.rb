@@ -17,6 +17,10 @@ module Cucub
         obj
       end
 
+      def proxy
+        Cucub::VM::Driver.instance.proxy_class_for(self)
+      end
+
       def instance(*args, &block)
         obj = super
         Cucub::ObjectsHub.instance.register(obj)

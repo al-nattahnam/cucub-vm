@@ -86,8 +86,8 @@ module Cucub
 
         begin
 
-          # worker is going to be a Class, fibered-aware, which can receive messages
-          # relay(@worker)
+        # worker is going to be a Class, fibered-aware, which can receive messages
+        # relay(@worker)
 
           $stdout.puts "prepared to receive."
 
@@ -135,7 +135,7 @@ module Cucub
 
     def init_channels
       @inbound = Cucub::Channel.vm_inner_inbound
-      #@outbound = Cucub::Channel.vm_inner_outbound
+      @outbound = Cucub::Channel.vm_inner_outbound
     end
 
     def stop

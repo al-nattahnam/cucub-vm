@@ -14,8 +14,7 @@ module Cucub
     end
 
     def start!(vm_opts={})
-      vm_opts[:threaded] = true if vm_opts[:threaded].nil?
-      @threaded = vm_opts[:threaded]
+      @threaded = vm_opts[:threaded].nil? ? true : vm_opts[:threaded]
       
       if @running 
         @config_filepath = vm_opts[:config]
