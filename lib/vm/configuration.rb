@@ -6,7 +6,7 @@ module Cucub
       include Singleton
 
       def initialize
-        @loader = Cucub::Protocol::Loader.instance
+        @loader = Cucub::Protocol::Loader.new
         set_config_file
         reload
       end
@@ -23,6 +23,14 @@ module Cucub
       def actions_for_class(class_name)
         obj_spec = @specification_set[class_name]
         obj_spec.action_specifications.collect(&:action_name)
+      end
+
+      def respond_to_for_class_action(class_name, action)
+        @specification_set[class_name].action_specifications.select {|spec| spec.action_name == action }.first.respond_to
+      end
+
+      def from_for_class_action(class_name, action)
+        @specification_set[class_name].action_specifications.select {|spec| spec.action_name == action }.first.from
       end
 
       def classes
