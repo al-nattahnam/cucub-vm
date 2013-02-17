@@ -3,16 +3,16 @@ require 'singleton'
 module Cucub
   class VM
     class Configuration
-      include Singleton
+      #include Singleton
 
-      def initialize
+      def initialize(config_filepath)
         @loader = Cucub::Protocol::Loader.new
-        set_config_file
+        set_config_file(config_filepath)
         reload
       end
 
-      def set_config_file
-        @loader.set_path(Cucub::VM.instance.config_filepath)
+      def set_config_file(config_filepath)
+        @loader.set_path(config_filepath)
       end
 
       def reload

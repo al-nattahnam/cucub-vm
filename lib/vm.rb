@@ -6,22 +6,45 @@ module Cucub
   class VM
     include Singleton
 
-    attr_reader :threaded
+    attr_reader :threaded, :uid, :reporting
 
     def initialize
       #@dispatcher = Cucub::Dispatcher.instance
+      
       @running = true
     end
 
-    def start!(vm_opts={})
+    def set_uid
+      @uid = rand(50)
+    end
+
+    def register
+      @configuration.classes.each do |class_name|
+        Cucub::VM::Driver.instance.register(@uid, class_name)
+      end
+    end
+
+    def set_reporting
+      @reporting = Cucub::Reporting.new(@uid)
+    end
+
+    def boot(vm_opts={})
+      set_uid
+      @config_filepath = vm_opts[:config]
+      @initializer = vm_opts[:initializer]
+      @configuration = Cucub::VM::Configuration.new(@config_filepath)
       @threaded = vm_opts[:threaded].nil? ? true : vm_opts[:threaded]
+      register
+      set_reporting
+    end
+
+    def start!
       
       if @running 
-        @config_filepath = vm_opts[:config]
         self.init_classes
         
         $stdout.puts Cucub::ObjectsHub.instance.objects.inspect
-        self.init_objects(vm_opts[:initializer]) # this will go inside worker instance
+        self.init_objects(@initializer) # this will go inside worker instance
         $stdout.puts Cucub::ObjectsHub.instance.objects.inspect
 
         self.init_reactor
@@ -29,7 +52,7 @@ module Cucub
     end
 
     def init_classes
-      Cucub::VM::Configuration.instance.classes.each do |class_name|
+      @configuration.classes.each do |class_name|
         begin
           const = Kernel.const_get(class_name.capitalize)
           const.send :include, Cucub::Object
@@ -53,8 +76,8 @@ module Cucub
       Cucub::Reactor.instance.stop
     end
 
-    def config_filepath
-      @config_filepath
+    def configuration
+      @configuration
     end
 
     #def address
