@@ -18,6 +18,7 @@ module Cucub
       #  send all when no activity is registered
       #  differentiate classes and uids in the messages
       #  
+      puts "Task Done: #{msg}"
       @messages << msg
       if (Time.now - @last_send) > @max_elapsed_time
         self.bulk_send
@@ -26,7 +27,14 @@ module Cucub
   
     def bulk_send
       puts "ready #{@vm_uid} engine #{@messages.join(",")}"
-      Cucub::Channel.vm_inner_outbound.send_string "ready #{@vm_uid} engine #{@messages.join(",")}"
+
+      vm_ref = Cucub::Reference.new(:layer => :vm, :object_uuid => @vm_uid)
+      server_ref = Cucub::Reference.new(:layer => :server)
+      message = Cucub::Message.new("from" => vm_ref, "to" => server_ref, "action" => "ready", "additionals" => @messages)
+
+      Cucub::Channel.vm_inner_outbound.send_string message.serialize
+
+      # Cucub::Channel.vm_inner_outbound.send_string "ready #{@vm_uid} engine #{@messages.join(",")}"
       @last_send = Time.now
       @messages = []
     end

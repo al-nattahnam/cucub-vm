@@ -26,6 +26,7 @@ module Cucub
 
     def set_reporting
       @reporting = Cucub::Reporting.new(@uid)
+      trap("INT") { @reporting.bulk_send }
     end
 
     def boot(vm_opts={})
