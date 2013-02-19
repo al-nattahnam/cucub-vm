@@ -40,6 +40,7 @@ module Cucub
       
         plug_actors
         init_channels
+        set_inbound_listen
 
         $stdout.puts "receiving"
         # This should be on inbound creation method
@@ -71,6 +72,12 @@ module Cucub
           puts "handled exception"
         end
 
+    end
+
+    def set_inbound_listen
+      Cucub::VM.instance.configuration.classes.each do |class_name|
+        @inbound.listen("#{class_name}##{Cucub::VM.instance.uid}")
+      end
     end
 
     def plug_actors
@@ -118,6 +125,8 @@ module Cucub
     end
 
     def unwrap_message(message)
+      message = message.split("##{Cucub::VM.instance.uid} ")[1]
+
       unserialized = Cucub::Message.parse(message)
       unserialized
     end

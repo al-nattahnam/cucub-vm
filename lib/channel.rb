@@ -35,10 +35,8 @@ module Cucub
       # It works by connecting to an IPC socket. In a future, it might be considered to
       #   enable tcp communication, so workers can be outside the local server.
 
-      $stdout.puts "Connecting to the Inner Inbound (PULL) socket"
-      #@socket = MaZMQ::Pull.new
-      #@socket.connect :ipc, "/tmp/cucub-inner-inbound.sock"
-      @socket = PanZMQ::Pull.new
+      $stdout.puts "Connecting to the Inner Inbound (SUBSCRIBE) socket"
+      @socket = PanZMQ::Subscribe.new
       @socket.connect "ipc:///tmp/cucub-inner-inbound.sock"
       @socket.register
       @socket
@@ -62,6 +60,10 @@ module Cucub
     #  @socket.recv_string#(ZMQ::NOBLOCK)
     #end
 
+    def listen(class_name)
+      @socket.listen(class_name)
+    end
+    
     def on_receive(&block)
       @socket.on_receive { |msg|
         block.call(msg)
