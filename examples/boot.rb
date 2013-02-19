@@ -3,7 +3,7 @@
 
 class Core
   def state(i=1)
-    i = i.to_i
+    i = i.to_f
     puts "--ack--"
     sleep(i)
     puts "Hola! #{i}"
