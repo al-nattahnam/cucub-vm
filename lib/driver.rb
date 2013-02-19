@@ -43,9 +43,23 @@ module Cucub
       end
 
       def register(uid, klass)
-        # TODO FIX armar mensajes para boot entre vm y server
+        # TODO Missing:
+        #   When a new VM registers, if there are any messages that may be sent to i, start doing
+        #   Capture when the process is being shutdown and send a signal to the 'brain' to remove this worker from the list
+        #   When no activity is registered from a VM, disable it and mark the failure
+        #   Also add message Id and the other type of messages into the Message class (Protocol gem)
+        
         $stdout.puts "Registering: #{uid} #{klass}"
-        # Cucub::Channel.vm_inner_outbound.send_string("register #{uid} #{klass}")
+        
+        # TODO organize VM and Server refs
+        # TODO cambiar object_uuid a uuid
+        vm_ref = Cucub::Reference.new(:object_uuid => uid, :layer => :vm)
+        server_ref = Cucub::Reference.new(:layer => :server)
+
+        message = Cucub::Message.new("from" => vm_ref, "to" => server_ref, "action" => "register", "additionals" => [uid, klass])
+        puts message.inspect
+
+        Cucub::Channel.vm_inner_outbound.send_string message.serialize
       end
     end
   end
