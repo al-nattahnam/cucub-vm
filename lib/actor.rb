@@ -34,9 +34,7 @@ module Cucub
     def process(msg)
       message = read_message(msg)
       play message
-      
-      # TODO use msg.uuid instead
-      Cucub::VM.instance.reporting.task_done(msg.serialize)
+      Cucub::VM.instance.reporting.task_done(message.uuid)
     end
 
     def read_message(message)
